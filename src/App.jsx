@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { celestialBodies, sunData } from './data/celestialBodies';
 import Scene from './components/Scene';
 import TopBar from './components/TopBar';
@@ -7,17 +7,22 @@ import Intro from './components/Intro';
 import BodyNav from './components/BodyNav';
 import SearchResults from './components/SearchResults';
 import InfoPanel from './components/InfoPanel';
+import BodySheet from './components/BodySheet';
 import SimulationBar from './components/SimulationBar';
 import ControlsBar from './components/ControlsBar';
 import ExploreUniverse from './components/ExploreUniverse';
 import Footer from './components/Footer';
 import { preloadAllTextures } from './utils/textures';
 import { startAmbient, setMuted, playSelect, playWhoosh, playHover } from './utils/audio';
-import { dateToJD } from './utils/orbitalMechanics';
+import { dateToJD, jdToDateStr } from './utils/orbitalMechanics';
+import { simClock, setJD, subscribe } from './utils/simClock';
 
 const ALL_BODIES = [sunData, ...celestialBodies];
 const EARTH = celestialBodies.find((b) => b.name === 'Earth');
 const SPEED_PRESETS_COUNT = 5;
+
+// Boot the clock to "now" once
+setJD(dateToJD(new Date()));
 
 export default function App() {
   const [booted, setBooted] = useState(false);
@@ -28,13 +33,10 @@ export default function App() {
   const [muted, setMutedState] = useState(false);
   const [showHero, setShowHero] = useState(true);
   const [showExplore, setShowExplore] = useState(false);
-
-  // Simulation
-  const [simJD, setSimJD] = useState(dateToJD(new Date()));
+  const [sheetBody, setSheetBody] = useState(null); // name string from search/sheet flow
   const [paused, setPaused] = useState(false);
   const [speedIdx, setSpeedIdx] = useState(1);
-
-  // Toggle visibility
+  const [displayJD, setDisplayJD] = useState(simClock.jd);
   const [toggles, setToggles] = useState({
     orbits: true,
     labels: true,
@@ -42,6 +44,8 @@ export default function App() {
     belts: true,
     comets: true,
   });
+
+  useEffect(() => subscribe(setDisplayJD), []);
 
   useEffect(() => {
     preloadAllTextures(celestialBodies, sunData, setProgress);
@@ -59,6 +63,7 @@ export default function App() {
     setSelected(body);
     setShowHero(false);
     setShowExplore(false);
+    setSheetBody(null);
   }, []);
 
   const handlePickByName = useCallback((name) => {
@@ -66,9 +71,11 @@ export default function App() {
     if (body) selectBody(body);
   }, [selectBody]);
 
-  const matchingBodies = query
-    ? ALL_BODIES.filter((b) => b.name.toLowerCase().includes(query.toLowerCase()))
-    : [];
+  /** Open the full data sheet (from search or explore). */
+  const openSheet = useCallback((name) => {
+    playSelect();
+    setSheetBody(name);
+  }, []);
 
   const handleToggleMute = useCallback(() => {
     setMutedState((m) => { setMuted(!m); return !m; });
@@ -89,6 +96,7 @@ export default function App() {
       if (e.target.tagName === 'INPUT') return;
       if (e.key === 'Escape') {
         e.preventDefault();
+        if (sheetBody) { setSheetBody(null); return; }
         if (showExplore) { setShowExplore(false); return; }
         setSelected(null);
       }
@@ -103,17 +111,16 @@ export default function App() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [handleToggle, showExplore]);
+  }, [handleToggle, showExplore, sheetBody]);
 
   const telemetry = selected
     ? `TRACKING · ${selected.name.toUpperCase()}`
-    : `FREE CAM · ${ALL_BODIES.length} BODIES · JD ${Math.floor(simJD)}`;
+    : `FREE CAM · ${ALL_BODIES.length}+ BODIES · ${jdToDateStr(displayJD)}`;
 
   return (
     <main className="app">
       <div className="canvas">
         <Scene
-          simJD={simJD}
           selected={selected}
           onSelect={selectBody}
           hovered={hovered}
@@ -152,24 +159,22 @@ export default function App() {
             <span>SPACE PAUSE</span>
           </div>
 
-          {query && matchingBodies.length > 0 && (
+          {query && (
             <SearchResults
-              results={matchingBodies}
-              onPick={(body) => { selectBody(body); setQuery(''); }}
+              query={query}
+              onOpenSheet={openSheet}
             />
           )}
 
-          {selected && <InfoPanel body={selected} simJD={simJD} onClose={() => setSelected(null)} />}
+          {selected && <InfoPanel body={selected} onClose={() => setSelected(null)} />}
 
           <ControlsBar toggles={toggles} onToggle={handleToggle} onViewPreset={handleViewPreset} />
 
           <SimulationBar
-            simJD={simJD}
-            onJDChange={setSimJD}
             paused={paused}
-            onTogglePause={() => setPaused((p) => !p)}
             speedIdx={speedIdx}
             onSpeedChange={setSpeedIdx}
+            onTogglePause={() => setPaused((p) => !p)}
           />
 
           <BodyNav selected={selected?.name} onPick={handlePickByName} />
@@ -182,6 +187,15 @@ export default function App() {
         <ExploreUniverse
           onClose={() => setShowExplore(false)}
           onSelect={selectBody}
+          onOpenSheet={openSheet}
+        />
+      )}
+
+      {sheetBody && (
+        <BodySheet
+          bodyName={sheetBody}
+          onClose={() => setSheetBody(null)}
+          onFlyTo={handlePickByName}
         />
       )}
     </main>

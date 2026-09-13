@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { researchData } from '../data/researchDatabase';
 import { getElementSummary } from '../utils/orbitalMechanics';
+import { simClock, subscribe } from '../utils/simClock';
 import { playHover } from '../utils/audio';
+import SmartPhoto from './SmartPhoto';
 
 const TABS = ['OVERVIEW', 'PHYSICS', 'ORBIT', 'ATMOSPHERE', 'MISSIONS'];
 
@@ -15,7 +17,7 @@ function Section({ title, children }) {
 }
 
 function PropRow({ label, value }) {
-  if (!value) return null;
+  if (value === undefined || value === null || value === '') return null;
   return (
     <div className="prop-row">
       <span className="prop-label">{label}</span>
@@ -29,32 +31,34 @@ function MissionCard({ mission }) {
     <div className="mission-card">
       <div className="mission-header">
         <span className="mission-name">{mission.name}</span>
-        <span className={`mission-status ${mission.status === 'Active' ? 'active' : ''}`}>
-          {mission.status}
-        </span>
+        <span className={`mission-status ${mission.status === 'Active' ? 'active' : ''}`}>{mission.status}</span>
       </div>
-      <div className="mission-meta">
-        {mission.agency} · {mission.year}
-      </div>
+      <div className="mission-meta">{mission.agency} · {mission.year}</div>
       <div className="mission-detail">{mission.detail}</div>
     </div>
   );
 }
 
-export default function InfoPanel({ body, simJD, onClose }) {
+export default function InfoPanel({ body, onClose }) {
   const [tab, setTab] = useState('OVERVIEW');
+  const [jd, setJd] = useState(simClock.jd);
+  useEffect(() => subscribe(setJd), []);
+
   const data = researchData[body.name];
-  const orbitalSummary = getElementSummary(body.name, simJD);
+  // Live elements only for real planets (not moons/custom selections)
+  const orbitalSummary = researchData[body.name] ? getElementSummary(body.name, jd) : null;
 
   return (
     <aside className="panel" key={body.name}>
       <button className="close" onClick={onClose} aria-label="Close">×</button>
 
+      <div className="panel-photo">
+        <SmartPhoto name={body.name} width={640} iconSize={38} />
+      </div>
       <div className="kicker">{data?.category || body.type}</div>
       <h2>{body.name}</h2>
       <p className="panel-fact">{body.fact}</p>
 
-      {/* Tab navigation */}
       <div className="panel-tabs">
         {TABS.map((t) => (
           <button
@@ -67,7 +71,6 @@ export default function InfoPanel({ body, simJD, onClose }) {
         ))}
       </div>
 
-      {/* Tab content */}
       <div className="panel-content">
         {tab === 'OVERVIEW' && (
           <>
@@ -172,12 +175,10 @@ export default function InfoPanel({ body, simJD, onClose }) {
           <Section title="MISSIONS & EXPLORATION">
             {data?.missions?.length > 0 ? (
               <div className="missions-list">
-                {data.missions.map((m) => (
-                  <MissionCard key={m.name} mission={m} />
-                ))}
+                {data.missions.map((m) => <MissionCard key={m.name} mission={m} />)}
               </div>
             ) : (
-              <p className="info-text">No dedicated missions yet.</p>
+              <p className="info-text">No dedicated missions recorded.</p>
             )}
           </Section>
         )}

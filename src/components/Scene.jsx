@@ -12,7 +12,7 @@ import Comets from './Comets';
 import Belts from './Belts';
 import CameraRig from './CameraRig';
 
-export default function Scene({ simJD, selected, onSelect, hovered, onHover, toggles }) {
+export default function Scene({ selected, onSelect, hovered, onHover, toggles }) {
   return (
     <Canvas
       camera={{ position: [0, 10, 28], fov: 50, near: 0.05, far: 600 }}
@@ -25,12 +25,10 @@ export default function Scene({ simJD, selected, onSelect, hovered, onHover, tog
       }}
       onPointerMissed={() => onSelect(null)}
     >
-      {/* Deep space background */}
       <color attach="background" args={['#02030a']} />
       <fog attach="fog" args={['#02030a', 55, 180]} />
       <ambientLight intensity={0.04} color="#4a6a90" />
 
-      {/* Starfield layers — parallax depth */}
       <Stars radius={150} depth={70} count={11000} factor={2.8} saturation={0.06} fade speed={0.25} />
       <Stars radius={80} depth={30} count={2200} factor={1.6} saturation={0.02} fade speed={0.1} />
       <Stars radius={40} depth={15} count={600} factor={1.0} saturation={0} fade speed={0.06} />
@@ -44,10 +42,9 @@ export default function Scene({ simJD, selected, onSelect, hovered, onHover, tog
 
         {celestialBodies.map((body, i) => (
           <Fragment key={body.name}>
-            {toggles.orbits && <Orbit bodyName={body.name} simJD={simJD} />}
+            {toggles.orbits && <Orbit bodyName={body.name} />}
             <Planet
               body={body}
-              simJD={simJD}
               index={i}
               selected={selected?.name === body.name}
               hovered={hovered === body.name}

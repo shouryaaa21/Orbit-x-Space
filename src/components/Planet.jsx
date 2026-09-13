@@ -4,25 +4,30 @@ import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { getPlanetTexture, getCloudTexture, getMoonTexture, getRingTexture, getBumpTexture, getNightLightsTexture } from '../utils/textures';
 import { getHeliocentricEcliptic, compressEcliptic } from '../utils/orbitalMechanics';
+import { simClock } from '../utils/simClock';
 import { setBodyPosition } from '../utils/positions';
 import { playHover } from '../utils/audio';
 
 /* ----------------------------- moons ------------------------------------- */
 
-function Moon({ moon, simJD, parentBodyName, index, onSelect }) {
+function Moon({ moon, parentBodyName, index, onSelect }) {
   const groupRef = useRef();
   const meshRef = useRef();
+  const angleRef = useRef(index * 2.399963);
   const [hovered, setHovered] = useState(false);
 
-  useFrame((state) => {
-    const t = state.clock.elapsedTime;
-    const angle = t * moon.speed * 0.35 + index * 2.39;
+  useFrame((_, delta) => {
+    const d = Math.min(delta, 0.05);
+    // Frame-rate independent orbit + tumble
+    angleRef.current += d * moon.speed * 0.35;
+    const t = angleRef.current;
     const dist = moon.distance;
-    const x = Math.cos(angle) * dist;
-    const z = Math.sin(angle) * dist;
-    const y = Math.sin(angle + index) * 0.08;
-    groupRef.current.position.set(x, y, z);
-    meshRef.current.rotation.y += 0.003;
+    groupRef.current.position.set(
+      Math.cos(t) * dist,
+      Math.sin(t * 1.3 + index) * 0.08,
+      Math.sin(t) * dist
+    );
+    meshRef.current.rotation.y += d * 0.12;
   });
 
   const texture = useMemo(() => getMoonTexture(moon), [moon]);
@@ -32,13 +37,14 @@ function Moon({ moon, simJD, parentBodyName, index, onSelect }) {
     playHover();
     onSelect({
       name: moon.name,
-      type: `MOON OF ${parentBodyName}`,
+      type: `MOON OF ${parentBodyName.toUpperCase()}`,
       color: moon.color,
       size: moon.size,
-      fact: `${moon.name} orbits ${parentBodyName}. Distance: ${moon.distance.toFixed(1)} scene units from parent.`,
+      fact: `${moon.name} orbits ${parentBodyName}.`,
+      deep: `A natural satellite of ${parentBodyName}. Select it here in the 3D view to see it up close — full research data is available in the Explore Universe database (press E).`,
       stats: [
         { label: 'PARENT', value: parentBodyName },
-        { label: 'SIZE', value: `${(moon.size * 100).toFixed(0)}% of Earth` },
+        { label: 'REL SIZE', value: `${(moon.size * 100).toFixed(0)}` },
       ],
       moons: [],
     });
@@ -47,17 +53,17 @@ function Moon({ moon, simJD, parentBodyName, index, onSelect }) {
   return (
     <group ref={groupRef} onClick={handleClick} onPointerOver={(e) => { e.stopPropagation(); setHovered(true); }} onPointerOut={() => setHovered(false)}>
       <mesh ref={meshRef}>
-        <sphereGeometry args={[moon.size, 32, 32]} />
+        <sphereGeometry args={[moon.size, 48, 48]} />
         <meshStandardMaterial
           map={texture}
           roughness={0.92}
           metalness={0.02}
           emissive={hovered ? moon.color : '#000000'}
-          emissiveIntensity={hovered ? 0.4 : 0}
+          emissiveIntensity={hovered ? 0.35 : 0}
         />
       </mesh>
       {hovered && (
-        <Html distanceFactor={14} position={[0, moon.size + 0.2, 0]} center>
+        <Html distanceFactor={14} position={[0, moon.size + 0.15, 0]} center>
           <div className="planet-tag moon-tag">{moon.name}</div>
         </Html>
       )}
@@ -73,7 +79,13 @@ function getMaterialProps(body) {
   return { roughness: 0.88, metalness: 0.04, emissiveIntensity: 0.0 };
 }
 
-export default function Planet({ body, simJD, selected, hovered, onSelect, onHover, index, showLabels, showAtmosphere }) {
+// Rotation periods (hours) — real values drive spin speed via simClock
+const ROTATION_HOURS = {
+  Mercury: 1407.6, Venus: -5832.5, Earth: 23.93, Mars: 24.62,
+  Jupiter: 9.93, Saturn: 10.66, Uranus: -17.24, Neptune: 16.11, Pluto: -153.3,
+};
+
+export default function Planet({ body, selected, hovered, onSelect, onHover, index, showLabels, showAtmosphere }) {
   const groupRef = useRef();
   const spinRef = useRef();
   const cloudRef = useRef();
@@ -87,15 +99,26 @@ export default function Planet({ body, simJD, selected, hovered, onSelect, onHov
   const matProps = useMemo(() => getMaterialProps(body), [body]);
   const isEarth = body.name === 'Earth';
 
-  useFrame(() => {
+  // Base spin rate: real rotation period scaled so Earth = 0.05 rad/s at 1 day/s
+  const spinRate = useMemo(() => {
+    const hours = ROTATION_HOURS[body.name] || 24;
+    const retro = hours < 0 ? -1 : 1;
+    return retro * 0.05 * (24 / Math.abs(hours));
+  }, [body.name]);
+
+  useFrame((_, delta) => {
     if (!groupRef.current) return;
-    const helio = getHeliocentricEcliptic(body.name, simJD);
-    // Compress the distance, not the components (components go negative → NaN)
+    const d = Math.min(delta, 0.05); // clamp for tab-switch spikes
+
+    // Keplerian position from the global clock (never stale)
+    const helio = getHeliocentricEcliptic(body.name, simClock.jd);
     const [sx, sy, sz] = compressEcliptic(helio.x, helio.y, helio.z);
     groupRef.current.position.set(sx, sy, sz);
     setBodyPosition(body.name, groupRef.current);
-    spinRef.current.rotation.y += 0.003 * (body.speed || 0.5);
-    if (cloudRef.current) cloudRef.current.rotation.y += 0.001;
+
+    // Frame-rate independent axial rotation, scaled by sim speed
+    spinRef.current.rotation.y += d * spinRate * simClock.daysPerSec * (simClock.paused ? 0 : 1);
+    if (cloudRef.current) cloudRef.current.rotation.y += d * spinRate * 0.13 * simClock.daysPerSec * (simClock.paused ? 0 : 1);
   });
 
   const handleClick = useCallback((event) => {
@@ -176,10 +199,10 @@ export default function Planet({ body, simJD, selected, hovered, onSelect, onHov
       )}
 
       {(body.moons || []).map((moon, i) => (
-        <Moon key={moon.name} moon={moon} simJD={simJD} parentBodyName={body.name} index={i} onSelect={onSelect} />
+        <Moon key={moon.name} moon={moon} parentBodyName={body.name} index={i} onSelect={onSelect} />
       ))}
 
-      {showLabels && (isHighlighted) && (
+      {showLabels && isHighlighted && (
         <Html distanceFactor={14} position={[0, body.size + 0.5, 0]} center>
           <div className={`planet-tag ${selected ? 'is-selected' : ''}`}>{body.name}</div>
         </Html>

@@ -123,6 +123,10 @@ export const celestialBodies = [
       { label: 'TEMP', value: '−63 °C' },
       { label: 'MOONS', value: '2' },
     ],
+    moons: [
+      { name: 'Phobos', color: '#8a7a6a', palette: ['#5c5248', '#8a7a6a', '#b3a898', '#40382e'], size: 0.055, distance: 2.0, speed: 3.2, bumpiness: 0.9 },
+      { name: 'Deimos', color: '#9a8a7a', palette: ['#6c6258', '#9a8a7a', '#c4b8a8', '#4c4438'], size: 0.04, distance: 2.6, speed: 2.3, bumpiness: 0.8 },
+    ],
   },
   {
     name: 'Jupiter',
@@ -186,8 +190,10 @@ export const celestialBodies = [
       { label: 'MOONS', value: '146' },
     ],
     moons: [
-      { name: 'Titan', color: '#d8a75f', palette: ['#b98a44', '#d8a75f', '#f2d9a0', '#8a6428'], size: 0.16, distance: 3.9, speed: 1.0, bumpiness: 0.2, haze: true },
-      { name: 'Rhea', color: '#cfccc4', palette: ['#a8a49c', '#cfccc4', '#eeece6', '#8a867e'], size: 0.09, distance: 3.0, speed: 1.6, bumpiness: 0.6 },
+      { name: 'Titan', color: '#d8a75f', palette: ['#b98a44', '#d8a75f', '#f2d9a0', '#8a6428'], size: 0.16, distance: 4.4, speed: 1.0, bumpiness: 0.2, haze: true },
+      { name: 'Rhea', color: '#cfccc4', palette: ['#a8a49c', '#cfccc4', '#eeece6', '#8a867e'], size: 0.09, distance: 3.7, speed: 1.6, bumpiness: 0.6 },
+      { name: 'Enceladus', color: '#e8eef2', palette: ['#b8c4cc', '#e8eef2', '#ffffff', '#94a0aa'], size: 0.06, distance: 3.3, speed: 2.1, bumpiness: 0.25 },
+      { name: 'Iapetus', color: '#a89a84', palette: ['#5c5244', '#a89a84', '#d8ccba', '#3c362c'], size: 0.08, distance: 5.1, speed: 0.8, bumpiness: 0.75 },
     ],
   },
   {
@@ -218,6 +224,10 @@ export const celestialBodies = [
       { label: 'GRAVITY', value: '0.89 g' },
       { label: 'TEMP', value: '−195 °C' },
       { label: 'MOONS', value: '28' },
+    ],
+    moons: [
+      { name: 'Miranda', color: '#c8ccd0', palette: ['#8a9098', '#c8ccd0', '#e8ecef', '#6a7078'], size: 0.05, distance: 2.3, speed: 2.0, bumpiness: 0.85 },
+      { name: 'Titania', color: '#b0a8a0', palette: ['#7a746c', '#b0a8a0', '#d8d2ca', '#5c5750'], size: 0.08, distance: 3.0, speed: 1.2, bumpiness: 0.5 },
     ],
   },
   {

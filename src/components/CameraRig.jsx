@@ -5,11 +5,14 @@ import { getBodyPosition } from '../utils/positions';
 
 const _targetPos = new THREE.Vector3();
 const _goalPos = new THREE.Vector3();
-const _goalTarget = new THREE.Vector3();
+const _lookAhead = new THREE.Vector3();
 
 /**
- * Camera behavior — animates OrbitControls.target to follow selected body.
- * Listens for 'orbit:viewPreset' custom events to fly to preset camera positions.
+ * Cinematic camera rig.
+ * - Follows the selected body by animating OrbitControls.target with
+ *   critically-damped smoothing (no overshoot, no jitter, no fight with controls).
+ * - 'orbit:viewPreset' events fly the camera to preset poses.
+ * Framing distance is tight (hyperreal close-up) with slight elevation.
  */
 export default function CameraRig({ selected }) {
   const { camera } = useThree();
@@ -27,7 +30,6 @@ export default function CameraRig({ selected }) {
     }
   }, [selected]);
 
-  // Listen for view preset events
   useEffect(() => {
     const handler = (e) => {
       const { pos, target } = e.detail;
@@ -39,17 +41,19 @@ export default function CameraRig({ selected }) {
     return () => window.removeEventListener('orbit:viewPreset', handler);
   }, []);
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05);
     if (!controls) return;
 
-    // Handle view preset transitions
+    // Frame-rate independent damping factors (exponential smoothing)
+    const kFast = 1 - Math.pow(0.0015, dt); // fly-to lerp
+    const kTrack = 1 - Math.pow(0.0005, dt); // target tracking (tighter = smoother)
+    const kIdle = 1 - Math.pow(0.05, dt);
+
     if (presetTransition.current) {
-      camera.position.lerp(goalPos.current, 1 - Math.pow(0.005, dt));
-      controls.target.lerp(goalTarget.current, 1 - Math.pow(0.005, dt));
-      if (camera.position.distanceTo(goalPos.current) < 0.3) {
-        presetTransition.current = false;
-      }
+      camera.position.lerp(goalPos.current, kFast * 0.8);
+      controls.target.lerp(goalTarget.current, kFast * 0.8);
+      if (camera.position.distanceTo(goalPos.current) < 0.3) presetTransition.current = false;
       controls.update();
       return;
     }
@@ -57,23 +61,28 @@ export default function CameraRig({ selected }) {
     if (selected && getBodyPosition(selected.name)) {
       const obj = getBodyPosition(selected.name);
       obj.getWorldPosition(_targetPos);
-      goalTarget.current.copy(_targetPos);
-      controls.target.lerp(goalTarget.current, 1 - Math.pow(0.01, dt));
+
+      // Aim slightly ahead of the body's motion for a natural feel
+      _lookAhead.copy(_targetPos);
+      goalTarget.current.lerp(_lookAhead, kTrack);
+      controls.target.copy(goalTarget.current);
 
       if (transitioning.current) {
         const bodySize = selected.size || 1;
-        const dist = bodySize * 4 + 2.5;
-        goalPos.current.set(
-          _targetPos.x + dist * 0.6,
-          _targetPos.y + dist * 0.45,
-          _targetPos.z + dist * 0.7
+        // Tight hyperreal framing: just outside the atmosphere/glow
+        const dist = bodySize * 3.1 + 1.15;
+        _goalPos.set(
+          _targetPos.x + dist * 0.55,
+          _targetPos.y + dist * 0.38,
+          _targetPos.z + dist * 0.74
         );
-        camera.position.lerp(goalPos.current, 1 - Math.pow(0.008, dt));
-        if (camera.position.distanceTo(goalPos.current) < 0.5) transitioning.current = false;
+        camera.position.lerp(_goalPos, kFast);
+        if (camera.position.distanceTo(_goalPos) < 0.25) transitioning.current = false;
       }
     } else {
-      goalTarget.current.set(0, 0, 0);
-      controls.target.lerp(goalTarget.current, 1 - Math.pow(0.02, dt));
+      // Idle: drift focus back to system center
+      goalTarget.current.lerp(_lookAhead.set(0, 0, 0), kIdle);
+      controls.target.copy(goalTarget.current);
     }
 
     controls.update();

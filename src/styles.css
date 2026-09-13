@@ -1528,6 +1528,207 @@ footer .telemetry {
   font-size: 12px;
 }
 
+/* ---------- Database two-pane layout ---------- */
+.explore-modal--db {
+  width: min(1240px, 96vw);
+}
+
+.explore-db-layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 0;
+}
+
+.explore-db-list {
+  overflow-y: auto;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.explore-db-list::-webkit-scrollbar { width: 3px; }
+.explore-db-list::-webkit-scrollbar-thumb { background: rgba(140, 210, 255, 0.2); border-radius: 3px; }
+
+.db-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.db-item:hover { background: rgba(255, 255, 255, 0.03); }
+
+.db-item.is-active {
+  background: rgba(80, 160, 240, 0.1);
+  border-color: rgba(100, 180, 255, 0.25);
+}
+
+.db-item-orb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.db-item-name {
+  font-size: 12px;
+  color: #dce8f6;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.db-item-kind {
+  font-size: 7px;
+  letter-spacing: 0.1em;
+  color: #5a6a80;
+  white-space: nowrap;
+}
+
+.db-empty {
+  padding: 30px 10px;
+  text-align: center;
+  color: #4a5a70;
+  font-size: 11px;
+}
+
+.explore-db-detail {
+  display: grid;
+  grid-template-rows: 300px 1fr;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.db-preview {
+  position: relative;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: radial-gradient(ellipse at center, rgba(20, 35, 65, 0.3), rgba(2, 4, 10, 0.9));
+}
+
+.db-preview canvas { display: block; }
+
+.db-preview-hint {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 7px;
+  letter-spacing: 0.2em;
+  color: #42506a;
+  pointer-events: none;
+}
+
+.db-detail-info {
+  overflow-y: auto;
+  padding: 20px 26px;
+}
+
+.db-detail-info::-webkit-scrollbar { width: 3px; }
+.db-detail-info::-webkit-scrollbar-thumb { background: rgba(140, 210, 255, 0.2); }
+
+.db-detail-kind {
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  color: #82cfff;
+  margin-bottom: 4px;
+}
+
+.db-detail-name {
+  font-family: 'Space Grotesk';
+  font-size: 30px;
+  letter-spacing: -0.03em;
+  margin: 0 0 8px;
+  color: #eaf4ff;
+}
+
+.db-detail-fact {
+  font-size: 12px;
+  color: #9fb0c4;
+  line-height: 1.6;
+  margin: 0 0 12px;
+}
+
+.db-detail-deep {
+  font-size: 11px;
+  color: #7a8a9e;
+  line-height: 1.7;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-left: 2px solid rgba(130, 200, 255, 0.3);
+  background: rgba(80, 150, 220, 0.05);
+  border-radius: 0 8px 8px 0;
+}
+
+.db-detail-grid {
+  margin-bottom: 16px;
+}
+
+.db-facts {
+  margin-bottom: 16px;
+}
+
+.db-facts-title {
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  color: #7fe0b0;
+  margin-bottom: 8px;
+}
+
+.db-fact-row {
+  font-size: 10.5px;
+  color: #93a3b8;
+  line-height: 1.6;
+  padding: 4px 0;
+}
+
+.db-goto-btn {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid rgba(100, 180, 255, 0.35);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(60, 140, 220, 0.15), rgba(40, 110, 190, 0.08));
+  color: #dce8f6;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.db-goto-btn:hover {
+  background: linear-gradient(135deg, rgba(80, 170, 240, 0.25), rgba(60, 140, 220, 0.15));
+  border-color: rgba(140, 210, 255, 0.6);
+  box-shadow: 0 0 24px rgba(80, 170, 255, 0.2);
+}
+
+@media (max-width: 900px) {
+  .explore-db-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .explore-db-list {
+    max-height: 180px;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .explore-db-detail {
+    grid-template-rows: 200px 1fr;
+  }
+}
+
 /* ---------- Responsive cleanup ---------- */
 @media (max-width: 900px) {
   .controls-bar {
@@ -1575,4 +1776,79 @@ footer .telemetry {
     width: auto;
     max-height: 40vh;
   }
+}
+
+/* ====================== SMART PHOTO (NASA imagery) ====================== */
+.smart-photo{position:relative;width:100%;height:100%;overflow:hidden;background:radial-gradient(circle at 35% 30%,#12203a,#05080f 75%)}
+.smart-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s ease}
+.smart-photo[data-state="ok"] img{opacity:1}
+.smart-photo-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 32% 28%,rgba(80,140,220,.18),transparent 60%),#060b14}
+.smart-photo[data-state="loading"] .smart-photo-fallback{animation:photo-shimmer 1.4s ease-in-out infinite}
+@keyframes photo-shimmer{0%,to{opacity:.55}50%{opacity:1}}
+.smart-photo-credit{position:absolute;right:8px;bottom:6px;font-size:7px;letter-spacing:.12em;color:#ffffff70;text-shadow:0 1px 4px #000}
+.photo-thumb{border-radius:8px;border:1px solid rgba(150,200,255,.16);flex-shrink:0}
+
+/* ====================== UNIVERSE SEARCH RESULTS ====================== */
+.results--universe{width:372px;max-height:min(560px,70vh);overflow:hidden;display:flex;flex-direction:column;padding:0}
+.results-head{padding:11px 14px 9px;font-size:8px;letter-spacing:.22em;color:#7fb8e8;border-bottom:1px solid rgba(255,255,255,.07)}
+.results-list{overflow-y:auto;padding:5px}
+.results-list::-webkit-scrollbar{width:3px}
+.results-list::-webkit-scrollbar-thumb{background:#8cd2ff40;border-radius:3px}
+.result-row{display:flex;align-items:center;gap:11px;width:100%;padding:8px 9px;background:none;border:0;border-radius:8px;cursor:pointer;text-align:left;transition:background .16s ease,border-color .16s ease;border:1px solid transparent}
+.result-row:hover{background:#78beff14;border-color:#8cd2ff26}
+.result-row .photo-thumb{width:50px;height:50px}
+.result-info{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.result-name{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:#e8f2fc;letter-spacing:.04em}
+.result-meta{font-size:8px;letter-spacing:.14em;color:#71818f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.result-kind-badge{font-size:6.5px;letter-spacing:.16em;padding:3px 7px;border-radius:3px;border:1px solid rgba(255,255,255,.12);color:#93a3b8;flex-shrink:0}
+.result-kind-badge.kind-star{color:#ffd47e;border-color:#ffd47e4d;background:#ffd47e0d}
+.result-kind-badge.kind-planet{color:#7fc8ff;border-color:#7fc8ff40;background:#7fc8ff0d}
+.result-kind-badge.kind-moon{color:#e8c88f;border-color:#e8c88f40;background:#e8c88f0d}
+.result-kind-badge.kind-dwarf-planet{color:#a8d8e8;border-color:#a8d8e840;background:#a8d8e80d}
+.result-kind-badge.kind-comet{color:#9fd8c0;border-color:#9fd8c040;background:#9fd8c00d}
+.result-kind-badge.kind-asteroid{color:#b8a890;border-color:#b8a89040;background:#b8a8900d}
+.results-foot{padding:8px 14px;font-size:7px;letter-spacing:.18em;color:#5d6d85;border-top:1px solid rgba(255,255,255,.07)}
+
+/* ====================== BODY SHEET (full data modal) ====================== */
+.sheet-overlay{position:fixed;inset:0;z-index:120;background:rgba(1,2,8,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;animation:fade-in .25s ease}
+.sheet-modal{position:relative;width:min(880px,94vw);max-height:88vh;display:flex;flex-direction:column;border:1px solid rgba(157,207,255,.18);border-radius:18px;background:linear-gradient(160deg,#0a1220f2,#040810e8);-webkit-backdrop-filter:blur(32px);backdrop-filter:blur(32px);box-shadow:0 40px 140px #000000c0,inset 0 1px #ffffff10;animation:sheet-in .4s cubic-bezier(.2,.8,.2,1);overflow:hidden}
+@keyframes sheet-in{0%{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:none}}
+.sheet-close{position:absolute;right:14px;top:12px;z-index:3;width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:#0a101c99;color:#b9c8db;font-size:20px;cursor:pointer;transition:all .2s ease}
+.sheet-close:hover{color:#fff;border-color:#8cd2ff66;background:#5aaaf026}
+.sheet-hero{position:relative;display:flex;gap:22px;align-items:center;padding:22px 24px 18px;border-bottom:1px solid rgba(255,255,255,.07);background:linear-gradient(180deg,#ffffff08,transparent)}
+.sheet-photo{width:216px;border-radius:12px;border:1px solid rgba(157,207,255,.2);flex-shrink:0;box-shadow:0 18px 50px #00000070;aspect-ratio:1}
+.sheet-hero-info{display:flex;flex-direction:column;justify-content:center;min-width:0;flex:1}
+.sheet-kind{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.sheet-parent{font-size:8px;letter-spacing:.2em;color:#71818f}
+.sheet-name{font-family:'Space Grotesk',sans-serif;font-size:44px;letter-spacing:-.045em;margin:0 0 8px;color:#f2f8ff}
+.sheet-fact{color:#92a0b3;font-size:12px;line-height:1.7;margin:0;max-width:480px}
+.sheet-body{overflow-y:auto;padding:20px 24px 26px}
+.sheet-body::-webkit-scrollbar{width:3px}
+.sheet-body::-webkit-scrollbar-thumb{background:#8cd2ff40;border-radius:3px}
+.sheet-section{margin-bottom:20px}
+.sheet-section-title{font-size:8px;letter-spacing:.22em;color:#82cfff;margin-bottom:9px;padding-bottom:5px;border-bottom:1px solid rgba(140,210,255,.15)}
+.sheet-fly-btn{margin-top:6px;width:100%}
+
+/* ====================== EXPLORE PHOTO TOGGLE ====================== */
+.db-view-toggle{position:absolute;top:12px;right:12px;z-index:3;display:flex;gap:4px;padding:3px;border:1px solid rgba(255,255,255,.12);border-radius:8px;background:#040810cc;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.db-view-btn{border:0;background:none;color:#71818f;font-size:8px;letter-spacing:.14em;padding:6px 10px;border-radius:6px;cursor:pointer;transition:all .18s ease}
+.db-view-btn:hover{color:#c8d8ea}
+.db-view-btn.is-active{color:#dff3ff;background:#5aaaf033;box-shadow:inset 0 0 0 1px #8cd2ff33}
+.db-photo-pane{position:absolute;inset:0;background:#05080f}
+.db-photo-note{position:absolute;left:12px;bottom:10px;font-size:7px;letter-spacing:.18em;color:#ffffff88;text-shadow:0 1px 6px #000}
+.db-sheet-btn{width:100%;margin-top:8px;border:1px solid rgba(157,207,255,.35);background:#4ba1dc18;color:#cfe8ff;padding:11px 16px;border-radius:6px;font-size:9.5px;letter-spacing:.16em;cursor:pointer;transition:all .2s ease}
+.db-sheet-btn:hover{background:#5fb4f033;border-color:#aae1ff99;box-shadow:0 0 24px #5ab4ff2e}
+
+/* ====================== INFO PANEL PHOTO HERO ====================== */
+.panel-photo{height:118px;border-radius:10px;overflow:hidden;margin-bottom:14px;border:1px solid rgba(157,207,255,.16);box-shadow:0 12px 36px #00000060}
+
+/* ====================== MOBILE ADDENDUM ====================== */
+@media(max-width:800px){
+  .results--universe{width:auto;right:14px;left:14px;top:62px}
+  .sheet-modal{width:96vw;max-height:84vh}
+  .sheet-hero{flex-direction:column;align-items:center;text-align:center;padding:18px 16px 14px}
+  .sheet-photo{width:150px}
+  .sheet-name{font-size:32px}
+  .sheet-fact{max-width:none}
+  .db-view-toggle{top:8px;right:8px}
 }
