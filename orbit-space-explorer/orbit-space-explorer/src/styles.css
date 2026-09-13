@@ -1,0 +1,682 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+/* ---------- Reset & base ---------- */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: Inter, sans-serif;
+  background: #02040b;
+  color: #eef4ff;
+}
+
+/* ---------- App shell ---------- */
+.app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 48%, rgba(28, 44, 76, 0.2), transparent 42%), #02040b;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---------- Top bar ---------- */
+.top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 86px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 42px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(2, 4, 11, 0.82), transparent);
+  z-index: 5;
+}
+
+.brand {
+  font-family: 'Space Grotesk';
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #8fd7ff;
+  box-shadow: 0 0 18px #62c8ff;
+}
+
+.brand small {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  font-weight: 500;
+  opacity: 0.45;
+}
+
+.search {
+  width: min(330px, 35vw);
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 16, 28, 0.45);
+  backdrop-filter: blur(16px);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  padding: 0 13px;
+  gap: 9px;
+  color: #91a2ba;
+}
+
+.search input {
+  background: none;
+  border: 0;
+  outline: 0;
+  color: #fff;
+  width: 100%;
+  font-size: 12px;
+}
+
+.search input::placeholder {
+  color: #6d7b90;
+}
+
+.menu {
+  background: none;
+  border: 0;
+  color: #b9c8db;
+  font-size: 21px;
+}
+
+.explore-universe {
+  border: 1px solid rgba(153, 214, 255, 0.4);
+  background: rgba(75, 161, 220, 0.13);
+  color: #eaf7ff;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  position: absolute;
+  z-index: 4;
+  left: 7vw;
+  top: 24%;
+  width: 430px;
+  pointer-events: none;
+}
+
+.eyebrow,
+.kicker {
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  color: #82cfff;
+  margin-bottom: 18px;
+}
+
+.hero h1 {
+  font-family: 'Space Grotesk';
+  font-size: clamp(48px, 6vw, 82px);
+  line-height: 0.9;
+  letter-spacing: -0.065em;
+  margin: 0 0 24px;
+}
+
+.hero h1 span {
+  font-weight: 400;
+  color: #b7c1d0;
+}
+
+.hero p {
+  color: #8795aa;
+  max-width: 390px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+  pointer-events: auto;
+}
+
+.actions button,
+.deep {
+  border: 1px solid rgba(153, 214, 255, 0.4);
+  background: rgba(75, 161, 220, 0.13);
+  color: #eaf7ff;
+  padding: 12px 16px;
+  border-radius: 5px;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+}
+
+.actions .ghost {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #a9b6c9;
+}
+
+.hint {
+  position: absolute;
+  bottom: 75px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: #6c7a90;
+  z-index: 3;
+  white-space: nowrap;
+}
+
+/* ---------- Info panel ---------- */
+.panel {
+  position: absolute;
+  right: 4.2vw;
+  top: 22%;
+  width: min(370px, 34vw);
+  z-index: 7;
+  padding: 28px;
+  border: 1px solid rgba(157, 207, 255, 0.18);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(13, 22, 37, 0.82), rgba(3, 7, 14, 0.62));
+  backdrop-filter: blur(24px);
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.45), inset 0 1px rgba(255, 255, 255, 0.05);
+  animation: panel-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(30px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.close {
+  position: absolute;
+  right: 15px;
+  top: 12px;
+  background: none;
+  border: 0;
+  color: #8292a8;
+  font-size: 25px;
+  cursor: pointer;
+}
+
+.panel h2 {
+  font-family: 'Space Grotesk';
+  font-size: 48px;
+  letter-spacing: -0.05em;
+  margin: 10px 0;
+}
+
+.panel p {
+  color: #92a0b3;
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 0 0 23px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.stats div {
+  padding: 12px 9px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stats span {
+  display: block;
+  font-size: 7px;
+  letter-spacing: 0.16em;
+  color: #66758b;
+  margin-bottom: 7px;
+}
+
+.stats strong {
+  font-size: 11px;
+}
+
+.deep {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 23px;
+}
+
+/* ---------- 3D scene overlays ---------- */
+.planet-tag {
+  font-family: 'Space Grotesk';
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: #dff5ff;
+  background: rgba(3, 8, 16, 0.72);
+  border: 1px solid rgba(150, 210, 255, 0.25);
+  padding: 7px 10px;
+  border-radius: 5px;
+}
+
+/* ---------- Search results ---------- */
+.results {
+  position: absolute;
+  z-index: 8;
+  top: 67px;
+  right: 42px;
+  width: 330px;
+  background: rgba(4, 9, 17, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 6px;
+}
+
+.results button {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  background: none;
+  border: 0;
+  color: #dce8f6;
+  padding: 11px 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.results span {
+  font-size: 8px;
+  color: #718198;
+  letter-spacing: 0.15em;
+}
+
+/* ---------- Footer ---------- */
+footer {
+  position: absolute;
+  z-index: 5;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 52px;
+  padding: 0 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 8px;
+  letter-spacing: 0.17em;
+  color: #617087;
+  background: linear-gradient(0deg, rgba(2, 4, 11, 0.9), transparent);
+}
+
+footer span:first-child {
+  color: #72caff;
+}
+
+/* ---------- Deep dive (isolated planet view) ---------- */
+.deep-dive-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: #02040b;
+  display: flex;
+  flex-direction: column;
+}
+
+.deep-dive-canvas {
+  flex: 1;
+}
+
+.deep-dive-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  z-index: 51;
+  background: rgba(10, 16, 28, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #eaf4ff;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+
+.deep-dive-info {
+  position: absolute;
+  left: 5vw;
+  bottom: 6vh;
+  z-index: 51;
+  max-width: 420px;
+  pointer-events: none;
+}
+
+.deep-dive-info h2 {
+  font-family: 'Space Grotesk';
+  font-size: 40px;
+  letter-spacing: -0.05em;
+  margin: 8px 0;
+}
+
+.deep-dive-info p {
+  color: #92a0b3;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* ---------- Universe Explorer (search-any-body backend feature) ---------- */
+.universe-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: #02040b;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 42px;
+  overflow-y: auto;
+}
+
+.universe-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  z-index: 61;
+  background: rgba(10, 16, 28, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #eaf4ff;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+
+.universe-search-wrap {
+  position: relative;
+  max-width: 640px;
+}
+
+.universe-search-bar {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0 8px;
+}
+
+.universe-search-bar input {
+  flex: 1;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(10, 16, 28, 0.5);
+  border-radius: 8px;
+  padding: 0 16px;
+  color: #fff;
+  font-size: 13px;
+}
+
+.universe-search-bar button {
+  height: 44px;
+  padding: 0 22px;
+  border: 1px solid rgba(153, 214, 255, 0.4);
+  background: rgba(75, 161, 220, 0.18);
+  color: #eaf7ff;
+  border-radius: 8px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+
+.universe-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  max-height: 340px;
+  overflow-y: auto;
+  background: rgba(6, 11, 20, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.universe-suggestions-group + .universe-suggestions-group {
+  margin-top: 14px;
+}
+
+.universe-suggestions-label {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: #66758b;
+  margin-bottom: 8px;
+}
+
+.universe-suggestions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.universe-suggestion-chip {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d5e0ef;
+  padding: 6px 11px;
+  border-radius: 999px;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.universe-suggestion-chip:hover {
+  background: rgba(75, 161, 220, 0.22);
+  border-color: rgba(153, 214, 255, 0.4);
+  color: #eaf7ff;
+}
+
+.universe-hint {
+  color: #7d8ba0;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+}
+
+.universe-error {
+  color: #ff9a8a;
+  font-size: 12px;
+}
+
+.universe-result {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(320px, 1.2fr);
+  gap: 32px;
+  margin-top: 20px;
+  flex: 1;
+}
+
+.universe-model {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  min-height: 320px;
+}
+
+.universe-details {
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.universe-details h2 {
+  font-family: 'Space Grotesk';
+  font-size: 40px;
+  letter-spacing: -0.05em;
+  margin: 8px 0 16px;
+}
+
+.universe-summary {
+  color: #b6c1d3;
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 0 0 20px;
+}
+
+.universe-summary a {
+  color: #82cfff;
+}
+
+.universe-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.universe-stats div {
+  padding: 10px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.universe-stats span {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  color: #66758b;
+  margin-bottom: 6px;
+}
+
+.universe-stats strong {
+  font-size: 12px;
+  color: #eef4ff;
+}
+
+.universe-gallery-label {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: #66758b;
+  margin-bottom: 10px;
+}
+
+.universe-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.universe-gallery img {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 800px) {
+  .top {
+    padding: 0 18px;
+    height: 70px;
+  }
+
+  .brand small {
+    display: none;
+  }
+
+  .search {
+    width: 45vw;
+  }
+
+  .explore-universe {
+    padding: 8px 12px;
+    font-size: 9px;
+  }
+
+  .hero {
+    left: 7vw;
+    top: 19%;
+    width: 80vw;
+  }
+
+  .hero h1 {
+    font-size: 54px;
+  }
+
+  .panel {
+    right: 4vw;
+    left: 4vw;
+    top: auto;
+    bottom: 62px;
+    width: auto;
+    padding: 20px;
+  }
+
+  .panel h2 {
+    font-size: 36px;
+  }
+
+  .hint {
+    display: none;
+  }
+
+  footer {
+    padding: 0 18px;
+  }
+
+  .results {
+    right: 18px;
+    left: 18px;
+    width: auto;
+  }
+
+  .deep-dive-info {
+    left: 5vw;
+    right: 5vw;
+    bottom: 4vh;
+    max-width: none;
+  }
+
+  .deep-dive-info h2 {
+    font-size: 30px;
+  }
+
+  .universe-overlay {
+    padding: 20px;
+  }
+
+  .universe-result {
+    grid-template-columns: 1fr;
+  }
+
+  .universe-model {
+    min-height: 220px;
+  }
+}
