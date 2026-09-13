@@ -1,21 +1,32 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
+import { getOrbitPath } from '../utils/orbitalMechanics';
 
-/** A faint circular guideline showing a planet's orbital path around the Sun. */
-export default function Orbit({ radius }) {
-  const points = useMemo(() => {
-    const segmentCount = 129;
-    return Array.from({ length: segmentCount }, (_, i) => {
-      const angle = (i / (segmentCount - 1)) * Math.PI * 2;
-      return new THREE.Vector3(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-    });
-  }, [radius]);
-
-  const geometry = useMemo(() => new THREE.BufferGeometry().setFromPoints(points), [points]);
+/**
+ * Renders a Keplerian orbital path as a double-layer line:
+ * - A wider, fainter glow underneath
+ * - A sharper bright line on top
+ */
+export default function Orbit({ bodyName, simJD }) {
+  const { coreGeo, glowGeo } = useMemo(() => {
+    const points = getOrbitPath(bodyName, simJD, 256);
+    const vecs = points.map(([x, y, z]) => new THREE.Vector3(x, y, z));
+    return {
+      coreGeo: new THREE.BufferGeometry().setFromPoints(vecs),
+      glowGeo: new THREE.BufferGeometry().setFromPoints(vecs),
+    };
+  }, [bodyName, Math.floor(simJD / 10)]);
 
   return (
-    <line geometry={geometry}>
-      <lineBasicMaterial color="#8aa0bd" transparent opacity={0.13} />
-    </line>
+    <group>
+      {/* Wide glow layer */}
+      <line geometry={glowGeo}>
+        <lineBasicMaterial color="#4a8ac8" transparent opacity={0.06} linewidth={1} />
+      </line>
+      {/* Sharp core line */}
+      <line geometry={coreGeo}>
+        <lineBasicMaterial color="#6aaae0" transparent opacity={0.18} linewidth={1} />
+      </line>
+    </group>
   );
 }
